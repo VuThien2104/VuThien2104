@@ -13,13 +13,14 @@ export enum ScreenState {
 export interface Item {
   id: string;
   name: string;
-  type: 'consumable' | 'weapon' | 'armor' | 'material';
+  type: 'consumable' | 'weapon' | 'armor' | 'pants' | 'shoes' | 'material';
   price: number;
   description: string;
   // Dynamic stats for equipment
   attackBonus?: number;
   defenseBonus?: number;
   hpBonus?: number;
+  speedBonus?: number; // New stat for shoes
   // Effect for consumables
   effect?: (stats: PlayerStats) => PlayerStats;
 }
@@ -38,6 +39,7 @@ export interface PlayerStats {
   maxHp: number;
   attack: number;
   defense: number;
+  speed: number; // New stat
   
   // Growth stats
   freePoints: number;
@@ -47,10 +49,15 @@ export interface PlayerStats {
   inventory: Item[];
   equippedWeapon?: Item;
   equippedArmor?: Item;
+  equippedPants?: Item; // New slot
+  equippedShoes?: Item; // New slot
+
+  // Events Tracking: { "tet": [1, 2], "newbie": [0] } -> Array of claimed indices
+  eventProgress: Record<string, number[]>;
 
   // Death Mechanic
   isDead: boolean;
-  reviveTimestamp: number; // Date.now() when they can revive
+  reviveTimestamp: number;
 }
 
 export interface Enemy {

@@ -15,6 +15,7 @@ interface GameContextType {
   gainQi: (amount: number) => void;
   checkRevival: () => void;
   logout: () => void;
+  claimEventReward: (eventId: string, index: number, reward: { type: 'stones' | 'qi' | 'item', value: number | string, name?: string }) => void;
 }
 
 const defaultPlayer: PlayerStats = {
@@ -24,17 +25,19 @@ const defaultPlayer: PlayerStats = {
   realmLevel: 1,
   qi: 0,
   maxQi: 1000,
-  stones: 100, // Starting money
+  stones: 100,
   
   hp: 100,
   maxHp: 100,
   attack: 10,
   defense: 2,
+  speed: 1,
   
   freePoints: 0,
   breakthroughChance: 0,
   
   inventory: [],
+  eventProgress: {},
   isDead: false,
   reviveTimestamp: 0
 };
@@ -59,7 +62,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     localStorage.setItem('tuTienPlayer', JSON.stringify(player));
   }, [player]);
 
-  // Global Tick for revival check
   useEffect(() => {
     const interval = setInterval(() => {
         checkRevival();
@@ -115,7 +117,6 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       if (item.type === 'consumable' || item.type === 'material') {
           if (item.effect) {
              const newStats = item.effect(player);
-             // Remove 1 instance of item
              const newInv = [...player.inventory];
              const idx = newInv.findIndex(i => i.id === item.id);
              if (idx > -1) newInv.splice(idx, 1);
@@ -129,35 +130,75 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const equipItem = (item: Item) => {
-      if (item.type === 'weapon') {
-          setPlayer(prev => {
-              // Unequip current weapon if any
-              const oldWeapon = prev.equippedWeapon;
-              let currentAtk = prev.attack - (oldWeapon?.attackBonus || 0);
-              
-              // Equip new
-              return {
-                  ...prev,
-                  attack: currentAtk + (item.attackBonus || 0),
-                  equippedWeapon: item,
-                  // Remove from inv (conceptually equipped items leave inventory or stay marked, here simplified: remove from inv list)
-                  inventory: prev.inventory.filter(i => i !== item).concat(oldWeapon ? [oldWeapon] : [])
-              };
-          });
-          addLog(`Đã trang bị ${item.name}.`);
-      } else if (item.type === 'armor') {
-        setPlayer(prev => {
-            const oldArmor = prev.equippedArmor;
-            let currentDef = prev.defense - (oldArmor?.defenseBonus || 0);
-            return {
-                ...prev,
-                defense: currentDef + (item.defenseBonus || 0),
-                equippedArmor: item,
-                inventory: prev.inventory.filter(i => i !== item).concat(oldArmor ? [oldArmor] : [])
-            };
-        });
-        addLog(`Đã trang bị ${item.name}.`);
-      }
+      setPlayer(prev => {
+          let newStats = { ...prev };
+          let oldItem: Item | undefined;
+
+          // Helper to remove item from inv and add old item back
+          const updateInv = (equipped: Item | undefined) => {
+              const invWithoutNew = prev.inventory.filter(i => i !== item);
+              return equipped ? [...invWithoutNew, equipped] : invWithoutNew;
+          };
+
+          if (item.type === 'weapon') {
+              oldItem = prev.equippedWeapon;
+              newStats.attack = (prev.attack - (oldItem?.attackBonus || 0)) + (item.attackBonus || 0);
+              newStats.equippedWeapon = item;
+          } 
+          else if (item.type === 'armor') {
+              oldItem = prev.equippedArmor;
+              newStats.defense = (prev.defense - (oldItem?.defenseBonus || 0)) + (item.defenseBonus || 0);
+              newStats.equippedArmor = item;
+          }
+          else if (item.type === 'pants') {
+              oldItem = prev.equippedPants;
+              newStats.defense = (prev.defense - (oldItem?.defenseBonus || 0)) + (item.defenseBonus || 0);
+              newStats.maxHp = (prev.maxHp - (oldItem?.hpBonus || 0)) + (item.hpBonus || 0);
+              newStats.equippedPants = item;
+          }
+          else if (item.type === 'shoes') {
+              oldItem = prev.equippedShoes;
+              newStats.speed = (prev.speed - (oldItem?.speedBonus || 0)) + (item.speedBonus || 0);
+              newStats.equippedShoes = item;
+          }
+
+          newStats.inventory = updateInv(oldItem);
+          return newStats;
+      });
+      addLog(`Đã trang bị ${item.name}.`);
+  };
+
+  const claimEventReward = (eventId: string, index: number, reward: { type: 'stones' | 'qi' | 'item', value: number | string, name?: string }) => {
+      setPlayer(prev => {
+          // Check if already claimed
+          const claimed = prev.eventProgress[eventId] || [];
+          if (claimed.includes(index)) return prev;
+
+          let newState = { ...prev };
+          
+          if (reward.type === 'stones') {
+              newState.stones += Number(reward.value);
+              addLog(`Nhận thưởng sự kiện: ${reward.value} Linh Thạch`);
+          } else if (reward.type === 'qi') {
+              newState.qi = Math.min(newState.maxQi, newState.qi + Number(reward.value));
+              addLog(`Nhận thưởng sự kiện: ${reward.value} Linh Khí`);
+          } else if (reward.type === 'item') {
+              // Find item definition
+              const itemDef = ITEMS.find(i => i.id === reward.value);
+              if (itemDef) {
+                  newState.inventory = [...newState.inventory, itemDef];
+                  addLog(`Nhận thưởng sự kiện: ${itemDef.name}`);
+              }
+          }
+
+          // Update progress
+          newState.eventProgress = {
+              ...prev.eventProgress,
+              [eventId]: [...claimed, index]
+          };
+
+          return newState;
+      });
   };
 
   return (
@@ -165,7 +206,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       screen, setScreen, 
       player, setPlayer, 
       logs, addLog, 
-      buyItem, useItem, equipItem, gainQi, checkRevival, logout 
+      buyItem, useItem, equipItem, gainQi, checkRevival, logout,
+      claimEventReward 
     }}>
       {children}
     </GameContext.Provider>

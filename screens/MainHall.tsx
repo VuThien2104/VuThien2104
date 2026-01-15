@@ -40,7 +40,7 @@ const MainHall: React.FC = () => {
   };
 
   const handleItemClick = (item: Item) => {
-      if (item.type === 'weapon' || item.type === 'armor') {
+      if (['weapon', 'armor', 'pants', 'shoes'].includes(item.type)) {
           equipItem(item);
       } else {
           useItem(item);
@@ -62,8 +62,21 @@ const MainHall: React.FC = () => {
       }
   };
 
-  // Calculate percentage for progress bar
   const progressPercent = Math.min((player.qi / player.maxQi) * 100, 100);
+
+  const EquipmentSlot = ({ label, item, icon }: { label: string, item?: Item, icon: string }) => (
+      <div className="relative w-20 h-20 bg-black/40 border border-white/20 rounded-lg flex flex-col items-center justify-center group hover:border-cyan/50 transition-colors">
+          {item ? (
+              <>
+                  <div className="text-2xl">{item.type === 'weapon' ? '⚔️' : item.type === 'armor' ? '🛡️' : item.type === 'pants' ? '👖' : '👞'}</div>
+                  <div className="text-[9px] text-center mt-1 text-cyan px-1 line-clamp-2">{item.name}</div>
+              </>
+          ) : (
+              <div className="text-3xl opacity-20 grayscale">{icon}</div>
+          )}
+          <div className="absolute -bottom-3 text-[10px] text-gray-400 bg-dark px-1">{label}</div>
+      </div>
+  );
 
   return (
     <div className="flex flex-col h-full p-4 md:p-6 gap-4">
@@ -102,7 +115,6 @@ const MainHall: React.FC = () => {
 
       {/* Footer */}
       <div className="flex justify-between items-center p-4 bg-dark/60 border-2 border-cyan/30 rounded-[25px] backdrop-blur-md gap-4">
-        {/* Túi Đồ Button */}
         <button 
           onClick={() => setShowBag(true)}
           className="w-20 h-20 bg-gradient-to-br from-purple to-gold rounded-2xl flex flex-col items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform text-dark border-2 border-white/20 flex-shrink-0"
@@ -111,17 +123,13 @@ const MainHall: React.FC = () => {
           <span className="text-xs font-bold mt-1">Túi Đồ</span>
         </button>
 
-        {/* Thanh Tiến Độ Tu Vi (Changed from Mission Text) */}
         <div className="flex-1 h-20 flex flex-col justify-center px-2">
             <div className="flex justify-between text-sm mb-1 px-1">
                 <span className="text-cyan font-bold">Tu Vi</span>
                 <span className="text-gray-300">{Math.floor(progressPercent)}%</span>
             </div>
             <div className="w-full h-8 bg-black/50 rounded-full border border-white/20 relative overflow-hidden">
-                {/* Background pulse effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-900/0 via-blue-500/10 to-blue-900/0 animate-[shimmer_2s_infinite]"></div>
-                
-                {/* Progress Bar */}
                 <div 
                     className="h-full bg-gradient-to-r from-cyan via-blue-500 to-purple-600 transition-all duration-500 relative"
                     style={{ width: `${progressPercent}%` }}
@@ -129,15 +137,12 @@ const MainHall: React.FC = () => {
                     <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-[moveStripe_1s_linear_infinite]"></div>
                     <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 blur-[2px]"></div>
                 </div>
-
-                {/* Text Overlay */}
                 <div className="absolute inset-0 flex items-center justify-center text-xs md:text-sm font-bold text-white drop-shadow-md z-10">
                     {player.qi} / {player.maxQi} Linh Khí
                 </div>
             </div>
         </div>
 
-        {/* Thông Số Button */}
         <button 
           onClick={() => setShowStats(true)}
           className="w-20 h-20 bg-gradient-to-br from-cyan to-blue-500 rounded-2xl flex flex-col items-center justify-center shadow-lg cursor-pointer hover:scale-105 transition-transform text-dark border-2 border-white/20 flex-shrink-0"
@@ -152,7 +157,6 @@ const MainHall: React.FC = () => {
         <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setShowSettings(false)}>
           <div className="bg-dark/95 border-[3px] border-cyan rounded-[35px] p-10 max-w-md w-full text-center shadow-[0_0_100px_rgba(123,228,255,0.5)] animate-float" onClick={e => e.stopPropagation()}>
             <h2 className="font-cinzel text-4xl mb-8 text-transparent bg-clip-text bg-gradient-to-r from-cyan via-purple to-gold">CÀI ĐẶT</h2>
-            
             <div className="mb-8">
                 <label className="block text-gray-400 mb-2 text-sm uppercase tracking-wider">Nhập Mã Quà Tặng</label>
                 <div className="flex gap-2">
@@ -163,21 +167,10 @@ const MainHall: React.FC = () => {
                         placeholder="Nhập code..."
                         className="flex-1 bg-white/10 border border-cyan/50 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-gold"
                     />
-                    <button 
-                        onClick={handleRedeemCode}
-                        className="px-6 py-3 bg-cyan text-dark font-bold rounded-xl hover:bg-cyan/80 transition-colors"
-                    >
-                        NHẬN
-                    </button>
+                    <button onClick={handleRedeemCode} className="px-6 py-3 bg-cyan text-dark font-bold rounded-xl hover:bg-cyan/80 transition-colors">NHẬN</button>
                 </div>
             </div>
-
-            <button 
-              onClick={logout}
-              className="px-8 py-3 bg-red-500 text-white font-bold text-xl rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 w-full"
-            >
-              ĐĂNG XUẤT
-            </button>
+            <button onClick={logout} className="px-8 py-3 bg-red-500 text-white font-bold text-xl rounded-full hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30 w-full">ĐĂNG XUẤT</button>
             <button onClick={() => setShowSettings(false)} className="mt-8 block w-full text-gray-400 hover:text-white">Đóng</button>
           </div>
         </div>
@@ -188,37 +181,25 @@ const MainHall: React.FC = () => {
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowStats(false)}>
           <div className="bg-dark/95 border-[2px] border-gold rounded-[25px] p-8 max-w-md w-full shadow-[0_0_50px_rgba(255,215,123,0.3)] relative" onClick={e => e.stopPropagation()}>
             <h2 className="text-3xl font-bold mb-6 text-gold text-center border-b border-gold/30 pb-4">Thông Tin Tu Vi</h2>
-            
             <div className="space-y-4 text-lg">
               <div className="flex justify-between border-b border-white/5 pb-2">
                 <span className="text-gray-400">Trạng thái:</span>
                 <span className={`${player.isDead ? 'text-red-500' : 'text-green-400'} font-bold`}>{player.isDead ? 'Trọng Thương' : 'Khỏe Mạnh'}</span>
               </div>
-              <div className="flex justify-between">
-                 <span className="text-gray-400">Vũ khí:</span>
-                 <span className="text-orange-400">{player.equippedWeapon?.name || 'Tay Không'}</span>
-              </div>
-              <div className="flex justify-between">
-                 <span className="text-gray-400">Giáp:</span>
-                 <span className="text-blue-300">{player.equippedArmor?.name || 'Áo Vải'}</span>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-300">
+                  <div className="flex justify-between"><span>Vũ Khí:</span> <span className="text-orange-400">{player.equippedWeapon?.name || '-'}</span></div>
+                  <div className="flex justify-between"><span>Giáp:</span> <span className="text-blue-300">{player.equippedArmor?.name || '-'}</span></div>
+                  <div className="flex justify-between"><span>Quần:</span> <span className="text-green-300">{player.equippedPants?.name || '-'}</span></div>
+                  <div className="flex justify-between"><span>Giày:</span> <span className="text-yellow-300">{player.equippedShoes?.name || '-'}</span></div>
               </div>
 
-              <div className="flex justify-between mt-4">
-                <span className="text-gray-400">Sinh lực (HP):</span>
-                <span className="text-red-400 font-bold">{player.maxHp}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Công kích:</span>
-                <span className="text-yellow-400 font-bold">{player.attack}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Phòng thủ:</span>
-                <span className="text-blue-400 font-bold">{player.defense}</span>
-              </div>
+              <div className="flex justify-between mt-4"><span className="text-gray-400">Sinh lực (HP):</span><span className="text-red-400 font-bold">{player.maxHp}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Công kích:</span><span className="text-yellow-400 font-bold">{player.attack}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Phòng thủ:</span><span className="text-blue-400 font-bold">{player.defense}</span></div>
+              <div className="flex justify-between"><span className="text-gray-400">Tốc độ:</span><span className="text-purple-400 font-bold">{player.speed}</span></div>
               
               <div className="mt-6 pt-4 border-t border-white/10">
                 <div className="text-center mb-4 text-purple-300">Điểm tiềm năng: <span className="font-bold text-2xl text-white">{player.freePoints}</span></div>
-                
                 <div className="grid grid-cols-1 gap-3">
                    <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                       <span>Tăng Máu (+10)</span>
@@ -235,7 +216,6 @@ const MainHall: React.FC = () => {
                 </div>
               </div>
             </div>
-            
             <button onClick={() => setShowStats(false)} className="mt-8 w-full py-3 bg-gray-700 rounded-xl hover:bg-gray-600 font-bold">Đóng</button>
           </div>
         </div>
@@ -244,29 +224,51 @@ const MainHall: React.FC = () => {
       {/* Bag Modal */}
       {showBag && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4" onClick={() => setShowBag(false)}>
-          <div className="bg-dark/95 border-[2px] border-purple rounded-[25px] p-8 max-w-lg w-full h-[70vh] flex flex-col shadow-[0_0_50px_rgba(212,179,255,0.3)]" onClick={e => e.stopPropagation()}>
-            <h2 className="text-3xl font-bold mb-4 text-purple text-center">Túi Càn Khôn</h2>
-            <div className="flex-1 overflow-y-auto bg-black/30 rounded-xl p-4 border border-white/10">
-               {player.inventory.length === 0 ? (
-                   <div className="text-gray-500 text-center h-full flex items-center justify-center">Hiện tại túi đồ trống rỗng...</div>
-               ) : (
-                   <div className="grid grid-cols-1 gap-2">
-                       {player.inventory.map((item, idx) => (
-                           <div key={idx} className="bg-white/5 p-3 rounded-lg flex justify-between items-center hover:bg-white/10 transition-colors">
-                               <div>
-                                   <div className={`font-bold ${item.type === 'weapon' ? 'text-orange-400' : item.type === 'armor' ? 'text-blue-400' : 'text-green-400'}`}>{item.name}</div>
-                                   <div className="text-xs text-gray-400">{item.description}</div>
-                               </div>
-                               <button 
-                                onClick={() => handleItemClick(item)}
-                                className="px-3 py-1 bg-cyan/20 text-cyan text-sm font-bold rounded border border-cyan/50 hover:bg-cyan/40"
-                               >
-                                   {item.type === 'consumable' ? 'Dùng' : item.type === 'material' ? 'Xem' : 'Trang Bị'}
-                               </button>
-                           </div>
-                       ))}
-                   </div>
-               )}
+          <div className="bg-dark/95 border-[2px] border-purple rounded-[25px] p-6 max-w-2xl w-full h-[80vh] flex flex-col shadow-[0_0_50px_rgba(212,179,255,0.3)]" onClick={e => e.stopPropagation()}>
+            <h2 className="text-3xl font-bold mb-4 text-purple text-center font-cinzel">Túi Càn Khôn</h2>
+            
+            <div className="flex flex-col md:flex-row h-full gap-4 overflow-hidden">
+                {/* Equipment Panel (Left) */}
+                <div className="w-full md:w-1/3 bg-black/40 rounded-xl border border-white/10 p-4 flex flex-col items-center justify-center gap-6 relative">
+                     <div className="absolute inset-0 opacity-20 bg-[url('https://i.ibb.co.com/9bY8YhL/default-avatar.png')] bg-center bg-no-repeat bg-contain filter blur-sm"></div>
+                     <div className="relative z-10 grid grid-cols-2 gap-6">
+                        <EquipmentSlot label="Vũ Khí" item={player.equippedWeapon} icon="⚔️" />
+                        <EquipmentSlot label="Giáp" item={player.equippedArmor} icon="🛡️" />
+                        <EquipmentSlot label="Quần" item={player.equippedPants} icon="👖" />
+                        <EquipmentSlot label="Giày" item={player.equippedShoes} icon="👞" />
+                     </div>
+                     <div className="relative z-10 text-center mt-4">
+                         <div className="text-gold font-bold">{player.name}</div>
+                         <div className="text-xs text-gray-400">{player.realm}</div>
+                     </div>
+                </div>
+
+                {/* Inventory List (Right) */}
+                <div className="flex-1 bg-black/30 rounded-xl p-4 border border-white/10 overflow-y-auto">
+                    {player.inventory.length === 0 ? (
+                        <div className="text-gray-500 text-center h-full flex items-center justify-center italic">Túi trống rỗng...</div>
+                    ) : (
+                        <div className="grid grid-cols-1 gap-2">
+                            {player.inventory.map((item, idx) => (
+                                <div key={idx} className="bg-white/5 p-3 rounded-lg flex justify-between items-center hover:bg-white/10 transition-colors border border-transparent hover:border-cyan/30">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-2xl">{item.type === 'weapon' ? '⚔️' : item.type === 'armor' ? '🛡️' : item.type === 'consumable' ? '💊' : '📦'}</div>
+                                        <div>
+                                            <div className={`font-bold ${['weapon','armor','pants','shoes'].includes(item.type) ? 'text-orange-400' : 'text-gray-200'}`}>{item.name}</div>
+                                            <div className="text-[10px] text-gray-400">{item.description}</div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleItemClick(item)}
+                                        className="px-3 py-1 bg-cyan/20 text-cyan text-xs font-bold rounded border border-cyan/50 hover:bg-cyan/40 uppercase"
+                                    >
+                                        {['weapon','armor','pants','shoes'].includes(item.type) ? 'Trang Bị' : item.type === 'consumable' ? 'Dùng' : 'Xem'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
             <button onClick={() => setShowBag(false)} className="mt-4 w-full py-3 bg-gray-700 rounded-xl hover:bg-gray-600 font-bold">Đóng</button>
           </div>

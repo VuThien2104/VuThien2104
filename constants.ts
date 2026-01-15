@@ -13,13 +13,13 @@ export const REALMS = [
   "Độ Kiếp"
 ];
 
-// Menu Icons (Emojo/Image representation)
+// Menu Icons
 export const MENU_ICONS = {
   SKILLS: '📜',
   BREAKTHROUGH: '🧘',
   DUNGEON: '👹',
   SHOP: '🏮',
-  EVENTS: '🎁', // Changed from RANKING
+  EVENTS: '🎁', 
   SECT: '🏯'
 };
 
@@ -39,12 +39,21 @@ export const ITEMS: Item[] = [
   { id: 'w4', type: 'weapon', name: 'Huyền Thiết Trọng Kiếm', price: 5000, description: 'Kiếm rất nặng. Công +80', attackBonus: 80 },
   { id: 'w5', type: 'weapon', name: 'Thanh Vân Kiếm', price: 12000, description: 'Kiếm khí lăng nhân. Công +150', attackBonus: 150 },
   
-  // Armor
+  // Armor (Shirts)
   { id: 'a1', type: 'armor', name: 'Áo Vải Thô', price: 100, description: 'Áo dân thường. Thủ +2', defenseBonus: 2 },
   { id: 'a2', type: 'armor', name: 'Da Thú Giáp', price: 600, description: 'Làm từ da heo rừng. Thủ +10', defenseBonus: 10 },
   { id: 'a3', type: 'armor', name: 'Thiết Giáp', price: 2000, description: 'Giáp sắt. Thủ +25', defenseBonus: 25 },
   { id: 'a4', type: 'armor', name: 'Ngân Lân Giáp', price: 6000, description: 'Vảy bạc lấp lánh. Thủ +60', defenseBonus: 60 },
-  { id: 'a5', type: 'armor', name: 'Kim Cang Giáp', price: 15000, description: 'Bất hoại chi thân. Thủ +120', defenseBonus: 120 },
+  
+  // Pants
+  { id: 'l1', type: 'pants', name: 'Quần Vải', price: 80, description: 'Quần thường. Thủ +1, Máu +5', defenseBonus: 1, hpBonus: 5 },
+  { id: 'l2', type: 'pants', name: 'Quần Da Sói', price: 500, description: 'Bền bỉ. Thủ +5, Máu +20', defenseBonus: 5, hpBonus: 20 },
+  { id: 'l3', type: 'pants', name: 'Hắc Thiết Khố', price: 1800, description: 'Làm từ sắt đen. Thủ +15, Máu +50', defenseBonus: 15, hpBonus: 50 },
+
+  // Shoes
+  { id: 's1', type: 'shoes', name: 'Dép Rơm', price: 50, description: 'Đi cho đỡ đau chân. Tốc độ +1', speedBonus: 1 },
+  { id: 's2', type: 'shoes', name: 'Giày Vải', price: 300, description: 'Nhẹ nhàng. Tốc độ +3', speedBonus: 3 },
+  { id: 's3', type: 'shoes', name: 'Lăng Ba Vi Bộ Hài', price: 2500, description: 'Giày của cao thủ. Tốc độ +10', speedBonus: 10 },
 
   // Special/Materials
   { id: 'm1', type: 'material', name: 'Linh Thạch Vụn', price: 10, description: 'Dùng để giao dịch.' },
